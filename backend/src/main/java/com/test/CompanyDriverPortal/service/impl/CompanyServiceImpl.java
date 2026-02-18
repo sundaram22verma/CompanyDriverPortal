@@ -33,10 +33,6 @@ public class CompanyServiceImpl implements CompanyService {
             throw new RuntimeException("Company with this registration number already exists");
         }
 
-//        if(requestDto.getCompanyName() == requestDto.getRegistrationNumber()){
-//            throw new RuntimeException("Company name and registration number cannot be the same");
-//        }
-
         // Create Company entity from request DTO
         Company company = new Company();
         company.setCompanyName(requestDto.getCompanyName());

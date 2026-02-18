@@ -1,29 +1,81 @@
-HELP.md
+############################
+# Compiled source
+############################
 target/
+*.class
+
+############################
+# Logs
+############################
+*.log
+logs/
+
+############################
+# Package Files
+############################
+*.jar
+*.war
+*.ear
+
+############################
+# Maven
+############################
+.mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+############################
+# Spring Boot
+############################
+HELP.md
+spring.log
 
-### STS ###
+############################
+# Application Config (Local Only)
+############################
+application-local.yml
+application-local.properties
+.env
+
+############################
+# OS Generated Files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# IDE - STS / Eclipse
+############################
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
-.sts4-cache
+.sts4-cache/
 
-### IntelliJ IDEA ###
-.idea
+############################
+# IDE - IntelliJ IDEA
+############################
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+############################
+# IDE - NetBeans
+############################
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+############################
+# IDE - VS Code
+############################
 .vscode/
+
+############################
+# Coverage / Reports
+############################
+/coverage/

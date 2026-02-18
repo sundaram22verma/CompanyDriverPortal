@@ -39,6 +39,12 @@ public class DriverServiceImpl implements DriverService {
             throw new RuntimeException("Driver with this license number already exists");
         }
 
+        // Additional business validation: Experience years cannot be negative
+        if(requestDto.getExperienceYears() != null && requestDto.getExperienceYears() < 0) {
+            throw new RuntimeException("Experience years cannot be negative");
+        }
+
+        // Create Driver entity and set fields from request DTO because we have to save the details in the database and then return the response DTO
         Driver driver = new Driver();
         driver.setFirstName(requestDto.getFirstName());
         driver.setLastName(requestDto.getLastName());
@@ -48,6 +54,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setLicenseNumber(requestDto.getLicenseNumber());
         driver.setExperienceYears(requestDto.getExperienceYears());
 
+        // Create DriverDetails entity and set fields from request DTO because we have to save the details in the database and then return the response DTO
         DriverDetails details = new DriverDetails();
         details.setDriver(driver);
         details.setAddressLine1(requestDto.getAddressLine1());

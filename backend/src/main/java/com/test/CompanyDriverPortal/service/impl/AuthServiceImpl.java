@@ -10,7 +10,7 @@ import com.test.CompanyDriverPortal.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,13 +47,8 @@ public class AuthServiceImpl implements AuthService {
         // Set role - default to USER if not provided or invalid
         User.Role userRole = User.Role.USER; // Default role
 
-        if (registerRequest.getRole() != null && !registerRequest.getRole().trim().isEmpty()) {
-            try {
-                userRole = User.Role.valueOf(registerRequest.getRole().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Invalid role provided, use default USER role
-                userRole = User.Role.USER;
-            }
+        if(registerRequest.getRole() != null && !registerRequest.getRole().isBlank()) {
+            userRole = User.Role.valueOf(registerRequest.getRole().toUpperCase());
         }
 
         user.setRole(userRole);
@@ -62,7 +57,9 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
 
         // Generate JWT token for the newly registered user
-        String token = jwtUtil.generateToken(savedUser.getUsername(), savedUser.getRole().name());
+        String token = jwtUtil.generateToken(
+                savedUser.getUsername(),
+                savedUser.getRole().name());
 
         return new LoginResponse(
                 token,
@@ -75,29 +72,34 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
-            );
 
-            User user = userRepository.findByUsername(loginRequest.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        // Spring Security handles invalid username/password
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
 
-            // Generate JWT token for the authenticated user
-            String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "User not found: " + loginRequest.getUsername()
+                        )
+                );
 
-            return new LoginResponse(
-                    token,
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getRole().name(),
-                    "Login successful"
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid username or password");
-        }
+        String token = jwtUtil.generateToken(
+                user.getUsername(),
+                user.getRole().name()
+        );
+
+        return new LoginResponse(
+                token,
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name(),
+                "Login successful"
+        );
     }
+
 }

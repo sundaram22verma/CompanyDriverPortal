@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,72 +23,59 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    // CREATE COMPANY
     @PostMapping
-    public ResponseEntity<?> createCompany(@Valid @RequestBody CompanyRequestDto requestDto) {
-        try {
-            CompanyResponseDto response = companyService.createCompany(requestDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
-    }
-
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<CompanyResponseDto> createCompany(
+            @Valid @RequestBody CompanyRequestDto requestDto) {
+
+        CompanyResponseDto response = companyService.createCompany(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // UPDATE COMPANY
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCompany(@PathVariable Long id, @RequestBody CompanyRequestDto requestDto) {
-        try {
-            CompanyResponseDto response = companyService.updateCompany(id, requestDto);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<CompanyResponseDto> updateCompany(
+            @PathVariable Long id,
+            @Valid @RequestBody CompanyRequestDto requestDto) {
+
+        CompanyResponseDto response = companyService.updateCompany(id, requestDto);
+        return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN','SUPER_ADMIN')")
+    // GET COMPANY BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCompanyById(@PathVariable Long id) {
-        try {
-            CompanyResponseDto response = companyService.getCompanyById(id);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+    @PreAuthorize("hasAnyRole('USER','ADMIN','SUPER_ADMIN')")
+    public ResponseEntity<CompanyResponseDto> getCompanyById(@PathVariable Long id) {
+
+        CompanyResponseDto response = companyService.getCompanyById(id);
+        return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN','SUPER_ADMIN')")
+    // GET ALL COMPANIES
     @GetMapping
-    public ResponseEntity<List<CompanyResponseDto>> getAllCompanies() {
-        List<CompanyResponseDto> companies = companyService.getAllCompanies();
-        return ResponseEntity.ok(companies);
-    }
-
     @PreAuthorize("hasAnyRole('USER','ADMIN','SUPER_ADMIN')")
-    @PostMapping("/search")
-    public ResponseEntity<Page<CompanyResponseDto>> searchCompanies(@RequestBody CompanySearchDto searchDto) {
-        Page<CompanyResponseDto> companies = companyService.searchCompanies(searchDto);
-        return ResponseEntity.ok(companies);
+    public ResponseEntity<List<CompanyResponseDto>> getAllCompanies() {
+
+        return ResponseEntity.ok(companyService.getAllCompanies());
     }
 
+    // SEARCH COMPANIES
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','SUPER_ADMIN')")
+    public ResponseEntity<Page<CompanyResponseDto>> searchCompanies(
+            @RequestBody CompanySearchDto searchDto) {
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+        return ResponseEntity.ok(companyService.searchCompanies(searchDto));
+    }
+
+    // DELETE COMPANY
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCompany(@PathVariable Long id) {
-        try {
-            companyService.deleteCompany(id);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Company deleted successfully");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Map<String, String>> deleteCompany(@PathVariable Long id) {
+
+        companyService.deleteCompany(id);
+        return ResponseEntity.ok(Map.of("message", "Company deleted successfully"));
     }
 }
