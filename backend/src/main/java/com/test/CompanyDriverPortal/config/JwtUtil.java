@@ -17,10 +17,10 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:CompanyDriverPortalSecretKeyForJWTs2024SecureKey32}")
+    @Value("${jwt.secret}") // A strong secret key for signing the JWT, should be at least 256 bits (32 characters for HS256)
     private String secret;
 
-    @Value("${jwt.expiration:86400000}") // 24 hours
+    @Value("${jwt.expiration}") // 24 hours
     private Long expiration;
 
     // Generate a signing key from the secret
